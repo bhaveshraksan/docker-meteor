@@ -12,7 +12,7 @@ set -e
 : ${SETTINGS_FILE:=""}        # Location of settings.json file
 : ${SETTINGS_URL:=""}         # Remote source for settings.json
 : ${MONGO_URL:="mongodb://${MONGO_PORT_27017_TCP_ADDR}:${MONGO_PORT_27017_TCP_PORT}/${DB}"}
-: ${PORT:="80"}
+: ${PORT:="3000"}
 : ${RELEASE:="latest"}
 
 export MONGO_URL
@@ -167,10 +167,24 @@ if [ ! -e ${BUNDLE_DIR}/main.js ]; then
    exit 1
 fi
 
+#s3cmd sync s3://settingsmoolya/settings-pit-ecs.json ./settings.json
+if [ -n "${S3_URI}" ]; then
+   export AWS_ACCESS_KEY_ID=${S3_KEY}
+   export AWS_SECRET_ACCESS_KEY=${S3_SECRET}
+   export AWS_REGION=${S3_REGION}
+   s3cmd --version
+   s3cmd sync ${S3_URI} ./settings.json
+   export SETTINGS_FILE=`pwd`/settings.json
+   if [ -f "${SETTINGS_FILE}" ]; then
+   echo "Downloaded file from ${S3_URI}"
+   fi
+fi
+
 # Process settings sources, if they exist
 if [ -f "${SETTINGS_FILE}" ]; then
    export METEOR_SETTINGS=$(cat ${SETTINGS_FILE})
 fi
+
 if [ "x${SETTINGS_URL}" != "x" ]; then
    TMP_SETTINGS=$(curl -s ${SETTINGS_URL})
    if [ $? -eq 0 ]; then
