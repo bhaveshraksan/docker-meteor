@@ -9,7 +9,7 @@ WORKDIR /home/meteor
 # Install git, curl
 RUN echo "deb http://archive.ubuntu.com/ubuntu/ trusty multiverse" >> /etc/apt/sources.list \ && apt-get update && \
    apt-get  --force-yes install -y fontconfig libfontconfig1 git curl build-essential && \
-   (curl https://deb.nodesource.com/setup_8.x | bash) && \
+   (curl https://deb.nodesource.com/setup_6.x | bash) && \
    apt-get install --force-yes -y nodejs jq s3cmd wget && \
    apt-get clean && \
    rm -Rf /var/lib/apt/lists/* /tmp/* /var/tmp/*
